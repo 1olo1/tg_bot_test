@@ -1,0 +1,64 @@
+import telebot
+from telebot import types
+from random import randint
+token='token'
+bot= telebot.TeleBot(token)
+p1=[]
+p2=[]
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    sent = bot.send_message(message.chat.id, 'Как тебя зовут?')
+    bot.register_next_step_handler(sent, hello)
+
+def hello(message):
+    p1.append(message)
+    bot.send_message(message.chat.id, 'Добрейшего, {name}.'.format(name=message.text))
+    do = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    it1 = types.KeyboardButton('жен')
+    it2 = types.KeyboardButton('муж')
+    it3 = types.KeyboardButton('ламинат')
+    do.add(it1, it2, it3)
+    sent= bot.send_message(message.chat.id, 'Выберите пол', reply_markup=do)
+    bot.register_next_step_handler(sent, pol)
+def pol(message):
+    if message.text=="ламинат":
+        bot.send_message(message.from_user.id, "ты еблан?")
+    p1.append(message)
+    sent=bot.send_message(message.from_user.id, "Напиши имя второго человека")
+    bot.register_next_step_handler(sent, chel)
+
+def chel(message):
+    p2.append(message)
+    do = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    it1 = types.KeyboardButton('жен')
+    it2 = types.KeyboardButton('муж')
+    it3 = types.KeyboardButton('ламинат')
+    do.add(it1, it2, it3)
+    sent=bot.send_message(message.chat.id, 'Выберите пол', reply_markup=do)
+    bot.register_next_step_handler(sent, pol2)
+def pol2(message):
+    if message.text=="ламинат":
+        bot.send_message(message.from_user.id, "ты дурачок?")
+    p2.append(message)
+    bot.send_message(message.chat.id,'Выполняю жесткое сравнение')
+    x=randint(0,10)
+    if x in [0,1,2]:
+       if p2[1]=='муж':
+        bot.send_message(message.from_user.id, 'ищи нового')
+       if p2[1]=='ламинат':
+           bot.send_message(message.from_user.id, 'ищи новый')
+       else: bot.send_message(message.from_user.id, 'ищи новую')
+    elif x in [3,4,5]: bot.send_message(message.from_user.id, 'ну что-то среднее')
+    elif x in [6,7]: bot.send_message(message.from_user.id, 'я че ебу')
+    else: bot.send_message(message.from_user.id, "совместимость есть")
+
+
+@bot.message_handler(content_types=['text'])
+def get_text_messages(message):
+    if message.text == "/help":
+        bot.send_message(message.from_user.id, "Напиши /start")
+    else:
+        bot.send_message(message.from_user.id, " не понимаю, я тупой бот пока что. Напиши /help.")
+
+bot.infinity_polling()
